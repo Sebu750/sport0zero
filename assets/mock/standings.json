@@ -1,0 +1,78 @@
+{
+  "tournamentId": "t001",
+  "tournamentName": "Pakistan Super League 2026",
+  "standings": [
+    {
+      "position": 1,
+      "teamId": "team01",
+      "teamName": "Lahore Lions",
+      "played": 6,
+      "won": 5,
+      "lost": 1,
+      "drawn": 0,
+      "noResult": 0,
+      "points": 10,
+      "netRunRate": 1.245
+    },
+    {
+      "position": 2,
+      "teamId": "team03",
+      "teamName": "Islamabad United",
+      "played": 6,
+      "won": 4,
+      "lost": 2,
+      "drawn": 0,
+      "noResult": 0,
+      "points": 8,
+      "netRunRate": 0.812
+    },
+    {
+      "position": 3,
+      "teamId": "team05",
+      "teamName": "Peshawar Zalmi",
+      "played": 6,
+      "won": 4,
+      "lost": 2,
+      "drawn": 0,
+      "noResult": 0,
+      "points": 8,
+      "netRunRate": 0.534
+    },
+    {
+      "position": 4,
+      "teamId": "team06",
+      "teamName": "Multan Sultans",
+      "played": 6,
+      "won": 3,
+      "lost": 3,
+      "drawn": 0,
+      "noResult": 0,
+      "points": 6,
+      "netRunRate": 0.112
+    },
+    {
+      "position": 5,
+      "teamId": "team02",
+      "teamName": "Karachi Kings",
+      "played": 6,
+      "won": 1,
+      "lost": 5,
+      "drawn": 0,
+      "noResult": 0,
+      "points": 2,
+      "netRunRate": -0.987
+    },
+    {
+      "position": 6,
+      "teamId": "team04",
+      "teamName": "Quetta Gladiators",
+      "played": 6,
+      "won": 1,
+      "lost": 5,
+      "drawn": 0,
+      "noResult": 0,
+      "points": 2,
+      "netRunRate": -1.432
+    }
+  ]
+}

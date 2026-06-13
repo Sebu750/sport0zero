@@ -1,0 +1,46 @@
+{
+  "tournaments": [
+    {
+      "id": "t001",
+      "name": "Pakistan Super League 2026",
+      "sportId": "cricket",
+      "organizerId": "org001",
+      "format": "league",
+      "status": "ongoing",
+      "description": "Premier T20 cricket league featuring city-based franchises across Pakistan.",
+      "logoUrl": null,
+      "startDate": "2026-06-01T00:00:00Z",
+      "endDate": "2026-07-15T00:00:00Z",
+      "teamIds": ["team01", "team02", "team03", "team04", "team05", "team06"],
+      "venueId": null
+    },
+    {
+      "id": "t002",
+      "name": "National T20 Cup 2026",
+      "sportId": "cricket",
+      "organizerId": "org002",
+      "format": "groupStage",
+      "status": "upcoming",
+      "description": "Regional T20 championship with department and regional teams.",
+      "logoUrl": null,
+      "startDate": "2026-08-10T00:00:00Z",
+      "endDate": "2026-09-05T00:00:00Z",
+      "teamIds": [],
+      "venueId": null
+    },
+    {
+      "id": "t003",
+      "name": "Lahore Premier League 2026",
+      "sportId": "cricket",
+      "organizerId": "org003",
+      "format": "roundRobin",
+      "status": "upcoming",
+      "description": "Club-level T20 tournament across Lahore grounds.",
+      "logoUrl": null,
+      "startDate": "2026-07-20T00:00:00Z",
+      "endDate": "2026-08-05T00:00:00Z",
+      "teamIds": [],
+      "venueId": "v001"
+    }
+  ]
+}
