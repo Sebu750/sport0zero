@@ -25,7 +25,7 @@ mixin _$UserModel {
   String get cnicHash => throw _privateConstructorUsedError;
   String get phone => throw _privateConstructorUsedError;
   bool get verified => throw _privateConstructorUsedError;
-  UserRole get role => throw _privateConstructorUsedError;
+  List<UserRole> get roles => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
   String? get displayName => throw _privateConstructorUsedError;
@@ -51,7 +51,7 @@ abstract class $UserModelCopyWith<$Res> {
     String cnicHash,
     String phone,
     bool verified,
-    UserRole role,
+    List<UserRole> roles,
     DateTime createdAt,
     String? email,
     String? displayName,
@@ -78,7 +78,7 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? cnicHash = null,
     Object? phone = null,
     Object? verified = null,
-    Object? role = null,
+    Object? roles = null,
     Object? createdAt = null,
     Object? email = freezed,
     Object? displayName = freezed,
@@ -102,10 +102,10 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                 ? _value.verified
                 : verified // ignore: cast_nullable_to_non_nullable
                       as bool,
-            role: null == role
-                ? _value.role
-                : role // ignore: cast_nullable_to_non_nullable
-                      as UserRole,
+            roles: null == roles
+                ? _value.roles
+                : roles // ignore: cast_nullable_to_non_nullable
+                      as List<UserRole>,
             createdAt: null == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -142,7 +142,7 @@ abstract class _$$UserModelImplCopyWith<$Res>
     String cnicHash,
     String phone,
     bool verified,
-    UserRole role,
+    List<UserRole> roles,
     DateTime createdAt,
     String? email,
     String? displayName,
@@ -168,7 +168,7 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? cnicHash = null,
     Object? phone = null,
     Object? verified = null,
-    Object? role = null,
+    Object? roles = null,
     Object? createdAt = null,
     Object? email = freezed,
     Object? displayName = freezed,
@@ -192,10 +192,10 @@ class __$$UserModelImplCopyWithImpl<$Res>
             ? _value.verified
             : verified // ignore: cast_nullable_to_non_nullable
                   as bool,
-        role: null == role
-            ? _value.role
-            : role // ignore: cast_nullable_to_non_nullable
-                  as UserRole,
+        roles: null == roles
+            ? _value._roles
+            : roles // ignore: cast_nullable_to_non_nullable
+                  as List<UserRole>,
         createdAt: null == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -225,12 +225,12 @@ class _$UserModelImpl implements _UserModel {
     required this.cnicHash,
     required this.phone,
     this.verified = false,
-    this.role = UserRole.player,
+    final List<UserRole> roles = const [UserRole.player],
     required this.createdAt,
     this.email,
     this.displayName,
     this.photoUrl,
-  });
+  }) : _roles = roles;
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserModelImplFromJson(json);
@@ -244,9 +244,15 @@ class _$UserModelImpl implements _UserModel {
   @override
   @JsonKey()
   final bool verified;
+  final List<UserRole> _roles;
   @override
   @JsonKey()
-  final UserRole role;
+  List<UserRole> get roles {
+    if (_roles is EqualUnmodifiableListView) return _roles;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_roles);
+  }
+
   @override
   final DateTime createdAt;
   @override
@@ -258,7 +264,7 @@ class _$UserModelImpl implements _UserModel {
 
   @override
   String toString() {
-    return 'UserModel(id: $id, cnicHash: $cnicHash, phone: $phone, verified: $verified, role: $role, createdAt: $createdAt, email: $email, displayName: $displayName, photoUrl: $photoUrl)';
+    return 'UserModel(id: $id, cnicHash: $cnicHash, phone: $phone, verified: $verified, roles: $roles, createdAt: $createdAt, email: $email, displayName: $displayName, photoUrl: $photoUrl)';
   }
 
   @override
@@ -272,7 +278,7 @@ class _$UserModelImpl implements _UserModel {
             (identical(other.phone, phone) || other.phone == phone) &&
             (identical(other.verified, verified) ||
                 other.verified == verified) &&
-            (identical(other.role, role) || other.role == role) &&
+            const DeepCollectionEquality().equals(other._roles, _roles) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.email, email) || other.email == email) &&
@@ -290,7 +296,7 @@ class _$UserModelImpl implements _UserModel {
     cnicHash,
     phone,
     verified,
-    role,
+    const DeepCollectionEquality().hash(_roles),
     createdAt,
     email,
     displayName,
@@ -317,7 +323,7 @@ abstract class _UserModel implements UserModel {
     required final String cnicHash,
     required final String phone,
     final bool verified,
-    final UserRole role,
+    final List<UserRole> roles,
     required final DateTime createdAt,
     final String? email,
     final String? displayName,
@@ -336,7 +342,7 @@ abstract class _UserModel implements UserModel {
   @override
   bool get verified;
   @override
-  UserRole get role;
+  List<UserRole> get roles;
   @override
   DateTime get createdAt;
   @override

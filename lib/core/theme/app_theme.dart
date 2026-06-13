@@ -16,38 +16,68 @@ class AppTheme {
     colorSchemeSeed: AppColors.primary,
     scaffoldBackgroundColor: AppColors.background,
     textTheme: GoogleFonts.interTextTheme(),
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       centerTitle: false,
       elevation: 0,
-      scrolledUnderElevation: 0.5,
-      backgroundColor: AppColors.surface,
+      scrolledUnderElevation: 0,
+      backgroundColor: Colors.transparent,
       foregroundColor: AppColors.textPrimary,
+      surfaceTintColor: Colors.transparent,
     ),
     cardTheme: CardThemeData(
       elevation: 0,
+      shadowColor: Colors.black.withValues(alpha: 0.06),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.divider, width: 1),
+        borderRadius: BorderRadius.circular(16),
       ),
+      clipBehavior: Clip.antiAlias,
+    ),
+    tabBarTheme: TabBarThemeData(
+      indicatorColor: AppColors.accent,
+      indicatorSize: TabBarIndicatorSize.label,
+      labelColor: AppColors.textPrimary,
+      labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+      unselectedLabelColor: AppColors.textSecondary,
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+      dividerColor: AppColors.divider,
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
+        elevation: 0,
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      elevation: 0,
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       backgroundColor: AppColors.surface,
-      indicatorColor: AppColors.primary.withValues(alpha: 0.1),
+      indicatorColor: AppColors.primary.withValues(alpha: 0.08),
+      surfaceTintColor: Colors.transparent,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
     ),
     navigationRailTheme: NavigationRailThemeData(
       backgroundColor: AppColors.surface,
       selectedIconTheme: const IconThemeData(color: AppColors.primary),
-      indicatorColor: AppColors.primary.withValues(alpha: 0.1),
+      indicatorColor: AppColors.primary.withValues(alpha: 0.08),
     ),
   );
 
@@ -57,29 +87,65 @@ class AppTheme {
     colorSchemeSeed: AppColors.primary,
     scaffoldBackgroundColor: AppColors.backgroundDark,
     textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       centerTitle: false,
       elevation: 0,
-      scrolledUnderElevation: 0.5,
-      backgroundColor: AppColors.surfaceDark,
+      scrolledUnderElevation: 0,
+      backgroundColor: Colors.transparent,
       foregroundColor: AppColors.textPrimaryDark,
+      surfaceTintColor: Colors.transparent,
     ),
     cardTheme: CardThemeData(
       elevation: 0,
+      shadowColor: Colors.black.withValues(alpha: 0.2),
       shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+    ),
+    tabBarTheme: TabBarThemeData(
+      indicatorColor: AppColors.accent,
+      indicatorSize: TabBarIndicatorSize.label,
+      labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+      unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13),
+      dividerColor: AppColors.dividerDark,
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 0,
+      ),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: AppColors.surfaceDark,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        side: const BorderSide(color: AppColors.dividerDark, width: 1),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: AppColors.primaryLight, width: 1.5),
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      elevation: 0,
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.3),
       backgroundColor: AppColors.surfaceDark,
-      indicatorColor: AppColors.primary.withValues(alpha: 0.15),
+      indicatorColor: AppColors.primary.withValues(alpha: 0.12),
+      surfaceTintColor: Colors.transparent,
     ),
     navigationRailTheme: NavigationRailThemeData(
       backgroundColor: AppColors.surfaceDark,
       selectedIconTheme: const IconThemeData(color: AppColors.primaryLight),
-      indicatorColor: AppColors.primary.withValues(alpha: 0.15),
+      indicatorColor: AppColors.primary.withValues(alpha: 0.12),
     ),
   );
 }

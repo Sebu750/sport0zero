@@ -12,7 +12,7 @@ class UserModel with _$UserModel {
     required String cnicHash,
     required String phone,
     @Default(false) bool verified,
-    @Default(UserRole.player) UserRole role,
+    @Default([UserRole.player]) List<UserRole> roles,
     required DateTime createdAt,
     String? email,
     String? displayName,

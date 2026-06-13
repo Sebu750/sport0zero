@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../../core/widgets/responsive_layout.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/status_chip.dart';
 import '../../../shared/providers/app_providers.dart';
 import '../domain/models/match_model.dart';
 
@@ -12,88 +13,28 @@ class MatchesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Matches'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.calendar_today),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: ResponsiveLayout(
-        mobile: _buildMobileMatches(ref),
-        desktop: _buildDesktopMatches(ref),
-      ),
-    );
-  }
-
-  Widget _buildMobileMatches(WidgetRef ref) {
     return DefaultTabController(
       length: 3,
-      child: Column(
-        children: [
-          const TabBar(
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          title: const Text('Matches'),
+          bottom: const TabBar(
             tabs: [
-              Tab(text: 'Today'),
               Tab(text: 'Upcoming'),
-              Tab(text: 'Results'),
+              Tab(text: 'Live'),
+              Tab(text: 'History'),
             ],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                _matchesListAsync(ref.watch(todayMatchesProvider)),
-                _matchesListAsync(ref.watch(upcomingMatchesProvider)),
-                _matchesListAsync(ref.watch(completedMatchesProvider)),
-              ],
-            ),
-          ),
-        ],
+        ),
+        body: TabBarView(
+          children: [
+            _matchesListAsync(ref.watch(upcomingMatchesProvider)),
+            _matchesListAsync(ref.watch(liveMatchesProvider)),
+            _matchesListAsync(ref.watch(completedMatchesProvider)),
+          ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildDesktopMatches(WidgetRef ref) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 200,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _filterTile(ref, 'Today', todayMatchesProvider, isSelected: true),
-              _filterTile(ref, 'Upcoming', upcomingMatchesProvider),
-              _filterTile(ref, 'Results', completedMatchesProvider),
-              const Divider(),
-              const ListTile(
-                title: Text('All Leagues'),
-                leading: Icon(Icons.emoji_events_outlined),
-              ),
-            ],
-          ),
-        ),
-        const VerticalDivider(width: 1),
-        Expanded(
-          child: _matchesListAsync(ref.watch(todayMatchesProvider)),
-        ),
-      ],
-    );
-  }
-
-  Widget _filterTile(WidgetRef ref, String label, FutureProvider provider,
-      {bool isSelected = false}) {
-    return ListTile(
-      title: Text(label),
-      selected: isSelected,
-      selectedTileColor: AppColors.primary.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      onTap: () {},
     );
   }
 
@@ -141,116 +82,108 @@ class MatchesScreen extends ConsumerWidget {
   }
 
   Widget _matchCard(MatchModel match) {
-    final dateFmt = DateFormat('EEE, d MMM yyyy • h:mm a');
+    final dateFmt = DateFormat('EEE, d MMM yyyy \u2022 h:mm a');
     final isLive = match.status == MatchStatus.live;
     final isCompleted = match.status == MatchStatus.completed;
-
+    final statusType = isLive
+        ? StatusType.live
+        : isCompleted
+            ? StatusType.completed
+            : StatusType.upcoming;
+  
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Date + status row
-              Row(
-                children: [
-                  Text(dateFmt.format(match.datetime.toLocal()),
-                      style: const TextStyle(
-                          fontSize: 11, color: AppColors.textSecondary)),
-                  const Spacer(),
-                  if (isLive)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.live.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.circle, size: 7, color: AppColors.live),
-                          SizedBox(width: 4),
-                          Text('LIVE',
-                              style: TextStyle(
-                                  color: AppColors.live,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                    )
-                  else if (isCompleted)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.success.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text('FT',
-                          style: TextStyle(
-                              color: AppColors.success,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold)),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              // Teams row
-              Row(
-                children: [
-                  Expanded(
-                    child: _teamColumn(
-                      match.teamAName ?? 'Team A',
-                      match.teamAScore,
-                      isWinner: isCompleted && match.winnerId == match.teamAId,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Text('vs',
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    color: AppColors.textSecondary,
-                                    fontWeight: FontWeight.w600)),
-                          ),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(left: BorderSide(color: AppColors.primary, width: 4)),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          splashColor: AppColors.primary.withValues(alpha: 0.04),
+          onTap: () {},
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Date + status row
+                Row(
+                  children: [
+                    Text(dateFmt.format(match.datetime.toLocal()),
+                        style: const TextStyle(
+                            fontSize: 11, color: AppColors.textSecondary)),
+                    const Spacer(),
+                    if (isLive) ...[
+                      Container(
+                        width: 8, height: 8,
+                        decoration: BoxDecoration(
+                          color: AppColors.live,
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: AppColors.live.withValues(alpha: 0.4), blurRadius: 4)],
                         ),
-                      ],
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                    StatusChip(status: statusType),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Teams row
+                Row(
+                  children: [
+                    Expanded(
+                      child: _teamColumn(
+                        match.teamAName ?? 'Team A',
+                        match.teamAScore,
+                        isWinner: isCompleted && match.winnerId == match.teamAId,
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    child: _teamColumn(
-                      match.teamBName ?? 'Team B',
-                      match.teamBScore,
-                      isWinner: isCompleted && match.winnerId == match.teamBId,
-                      align: CrossAxisAlignment.end,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [AppColors.accent, AppColors.accentDark],
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.accent.withValues(alpha: 0.25),
+                              blurRadius: 8, offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Center(
+                          child: Text('vs',
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700)),
+                        ),
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      child: _teamColumn(
+                        match.teamBName ?? 'Team B',
+                        match.teamBScore,
+                        isWinner: isCompleted && match.winnerId == match.teamBId,
+                        align: CrossAxisAlignment.end,
+                      ),
+                    ),
+                  ],
+                ),
+                // Result summary
+                if (match.resultSummary != null) ...[
+                  const Divider(height: 20),
+                  Text(match.resultSummary!,
+                      style: const TextStyle(
+                          fontSize: 12, color: AppColors.textSecondary),
+                      textAlign: TextAlign.center),
                 ],
-              ),
-              // Result summary
-              if (match.resultSummary != null) ...[
-                const Divider(height: 20),
-                Text(match.resultSummary!,
-                    style: const TextStyle(
-                        fontSize: 12, color: AppColors.textSecondary),
-                    textAlign: TextAlign.center),
               ],
-            ],
+            ),
           ),
         ),
       ),
@@ -263,17 +196,33 @@ class MatchesScreen extends ConsumerWidget {
     return Column(
       crossAxisAlignment: align,
       children: [
-        Text(name,
-            style: TextStyle(
-              fontWeight: isWinner ? FontWeight.bold : FontWeight.w500,
-              color: isWinner ? AppColors.primary : null,
-            )),
+        Container(
+          decoration: isWinner
+              ? BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.accent,
+                      width: 2,
+                    ),
+                  ),
+                )
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 2),
+            child: Text(name,
+                style: TextStyle(
+                  fontWeight: isWinner ? FontWeight.w700 : FontWeight.w500,
+                  color: isWinner ? AppColors.accent : null,
+                  fontSize: 14,
+                )),
+          ),
+        ),
         if (score != null)
           Text('$score',
               style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: isWinner ? AppColors.primary : null,
+                fontSize: 24,
+                fontWeight: FontWeight.w800,
+                color: isWinner ? AppColors.accent : AppColors.textPrimary,
               )),
       ],
     );

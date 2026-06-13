@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 // Feature screens
-import '../../features/home/presentation/home_screen.dart';
+import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/matches/presentation/matches_screen.dart';
-import '../../features/standings/presentation/standings_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/teams/presentation/teams_screen.dart';
+import '../../features/tournaments/presentation/tournaments_screen.dart';
+import '../../features/analytics/presentation/analytics_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/signup_screen.dart';
 import '../../features/auth/presentation/forgot_password_screen.dart';
@@ -16,7 +19,7 @@ final GlobalKey<NavigatorState> _shellNavigatorKey = GlobalKey<NavigatorState>()
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/home',
+  initialLocation: '/dashboard',
   debugLogDiagnostics: true,
   routes: [
     // Auth routes (no shell)
@@ -36,16 +39,37 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
 
-    // Main app shell with bottom nav / side rail
+    // Main app shell with sidebar nav
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) => NavigationShell(child: child),
       routes: [
         GoRoute(
-          path: '/home',
-          name: 'home',
+          path: '/dashboard',
+          name: 'dashboard',
           pageBuilder: (context, state) => const NoTransitionPage(
-            child: HomeScreen(),
+            child: DashboardScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: ProfileScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/teams',
+          name: 'teams',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: TeamsScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/tournaments',
+          name: 'tournaments',
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: TournamentsScreen(),
           ),
         ),
         GoRoute(
@@ -56,32 +80,33 @@ final GoRouter appRouter = GoRouter(
           ),
         ),
         GoRoute(
-          path: '/standings',
-          name: 'standings',
+          path: '/analytics',
+          name: 'analytics',
           pageBuilder: (context, state) => const NoTransitionPage(
-            child: StandingsScreen(),
+            child: AnalyticsScreen(),
           ),
         ),
         GoRoute(
-          path: '/profile',
-          name: 'profile',
+          path: '/settings',
+          name: 'settings',
           pageBuilder: (context, state) => const NoTransitionPage(
-            child: ProfileScreen(),
+            child: SettingsScreen(),
           ),
+        ),
+        // Legacy redirect
+        GoRoute(
+          path: '/home',
+          redirect: (context, state) => '/dashboard',
+        ),
+        GoRoute(
+          path: '/standings',
+          redirect: (context, state) => '/tournaments',
         ),
       ],
     ),
   ],
   redirect: (context, state) {
-    // Auth guard placeholder — enable when backend is connected
-    // final container = ProviderScope.containerOf(context);
-    // final authState = container.read(authProvider);
-    // final isLoggedIn = authState.isAuthenticated;
-    // final isAuthRoute = state.matchedLocation == '/login' ||
-    //     state.matchedLocation == '/signup' ||
-    //     state.matchedLocation == '/forgot-password';
-    // if (!isLoggedIn && !isAuthRoute) return '/login';
-    // if (isLoggedIn && isAuthRoute) return '/home';
+    // Auth guard placeholder
     return null;
   },
 );
