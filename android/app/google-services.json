@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "554938370328",
+    "project_id": "sport0zero",
+    "storage_bucket": "sport0zero.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:554938370328:android:7e0469797f2047309d766d",
+        "android_client_info": {
+          "package_name": "com.sport0zero.sport0zero"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7NoAUvv51Dy9BxdxFjGZLKtEST6nH77k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

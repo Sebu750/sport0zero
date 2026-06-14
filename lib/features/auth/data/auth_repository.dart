@@ -1,7 +1,7 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/models/user_model.dart';
-import '../../../core/constants/app_constants.dart';
 
 /// Auth state: unauthenticated, loading, authenticated
 enum AuthStatus { unauthenticated, loading, authenticated, error }
@@ -21,70 +21,111 @@ class AuthState {
     AuthStatus? status,
     UserModel? user,
     String? errorMessage,
-  }) => AuthState(
-    status: status ?? this.status,
-    user: user ?? this.user,
-    errorMessage: errorMessage,
-  );
+  }) =>
+      AuthState(
+        status: status ?? this.status,
+        user: user ?? this.user,
+        errorMessage: errorMessage,
+      );
 
   bool get isAuthenticated => status == AuthStatus.authenticated;
 }
 
 /// Repository + state notifier for authentication.
-/// Currently uses mock login; swap in real API when backend is ready.
+/// Uses Firebase Auth for real authentication.
 class AuthRepository extends StateNotifier<AuthState> {
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   AuthRepository() : super(const AuthState());
 
+  /// Convert Firebase User + Firestore profile to UserModel
+  Future<UserModel> _buildUserModel(User firebaseUser) async {
+    // Try to fetch profile from Firestore
+    final doc = await _firestore.collection('profiles').doc(firebaseUser.uid).get();
+
+    if (doc.exists) {
+      final data = doc.data()!;
+      return UserModel(
+        id: firebaseUser.uid,
+        cnicHash: data['cnicHash'] as String? ?? '',
+        phone: data['phone'] as String? ?? firebaseUser.phoneNumber ?? '',
+        email: firebaseUser.email,
+        displayName: data['displayName'] as String? ?? firebaseUser.displayName,
+        photoUrl: data['photoUrl'] as String? ?? firebaseUser.photoURL,
+        verified: data['verified'] as bool? ?? firebaseUser.emailVerified,
+        roles: _parseRoles(data['roles']),
+        createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? firebaseUser.metadata.creationTime ?? DateTime.now(),
+      );
+    }
+
+    // Fallback: use Firebase Auth data only
+    return UserModel(
+      id: firebaseUser.uid,
+      cnicHash: '',
+      phone: firebaseUser.phoneNumber ?? '',
+      email: firebaseUser.email,
+      displayName: firebaseUser.displayName,
+      photoUrl: firebaseUser.photoURL,
+      verified: firebaseUser.emailVerified,
+      createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
+    );
+  }
+
+  List<UserRole> _parseRoles(dynamic rolesData) {
+    if (rolesData is List) {
+      return rolesData.map((r) {
+        return switch (r.toString()) {
+          'player' => UserRole.player,
+          'manager' => UserRole.manager,
+          'organizer' => UserRole.organizer,
+          'admin' => UserRole.admin,
+          _ => UserRole.player,
+        };
+      }).toList();
+    }
+    return [UserRole.player];
+  }
+
   /// Attempt login with email and password.
-  /// Returns true on success, false on failure.
   Future<bool> login(String email, String password) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
     try {
-      // Simulate network delay
-      await Future.delayed(const Duration(milliseconds: 800));
-
-      // Mock validation — accept any non-empty credentials for now
-      if (email.isEmpty || password.isEmpty) {
-        state = state.copyWith(
-          status: AuthStatus.error,
-          errorMessage: 'Email and password are required.',
-        );
-        return false;
-      }
-
-      if (password.length < 6) {
-        state = state.copyWith(
-          status: AuthStatus.error,
-          errorMessage: 'Password must be at least 6 characters.',
-        );
-        return false;
-      }
-
-      // Mock user
-      final user = UserModel(
-        id: 'user_001',
-        cnicHash: 'mock_hash',
-        phone: '+92 300 1234567',
+      final credential = await _auth.signInWithEmailAndPassword(
         email: email,
-        displayName: email.split('@').first,
-        verified: true,
-        createdAt: DateTime.now(),
+        password: password,
       );
 
-      // Store mock token
-      await _secureStorage.write(
-        key: AppConstants.tokenKey,
-        value: 'mock_jwt_token_${DateTime.now().millisecondsSinceEpoch}',
-      );
+      if (credential.user != null) {
+        final userModel = await _buildUserModel(credential.user!);
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          user: userModel,
+        );
+        return true;
+      }
 
       state = state.copyWith(
-        status: AuthStatus.authenticated,
-        user: user,
+        status: AuthStatus.error,
+        errorMessage: 'Login failed. Please try again.',
       );
-      return true;
+      return false;
+    } on FirebaseAuthException catch (e) {
+      final message = switch (e.code) {
+        'user-not-found' => 'No account found with this email.',
+        'wrong-password' => 'Incorrect password. Please try again.',
+        'invalid-email' => 'Please enter a valid email address.',
+        'user-disabled' => 'This account has been disabled.',
+        'too-many-requests' => 'Too many attempts. Please try again later.',
+        'invalid-credential' => 'Invalid email or password.',
+        _ => e.message ?? 'Login failed. Please try again.',
+      };
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: message,
+      );
+      return false;
     } catch (e) {
       state = state.copyWith(
         status: AuthStatus.error,
@@ -94,41 +135,69 @@ class AuthRepository extends StateNotifier<AuthState> {
     }
   }
 
-  /// Sign up a new user (mock).
-  Future<bool> signUp(String email, String password, String displayName) async {
+  /// Sign up a new user with Firebase Auth + create Firestore profile.
+  Future<bool> signUp(String email, String password, String displayName, {String phone = ''}) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
     try {
-      await Future.delayed(const Duration(milliseconds: 800));
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-      if (email.isEmpty || password.isEmpty || displayName.isEmpty) {
-        state = state.copyWith(
-          status: AuthStatus.error,
-          errorMessage: 'All fields are required.',
+      if (credential.user != null) {
+        // Update display name in Firebase Auth
+        await credential.user!.updateDisplayName(displayName);
+
+        // Create profile document in Firestore
+        final now = Timestamp.now();
+        await _firestore.collection('profiles').doc(credential.user!.uid).set({
+          'displayName': displayName,
+          'phone': phone,
+          'email': email,
+          'cnicHash': '',
+          'roles': ['player'],
+          'verified': false,
+          'photoUrl': '',
+          'createdAt': now,
+          'updatedAt': now,
+        });
+
+        final userModel = UserModel(
+          id: credential.user!.uid,
+          cnicHash: '',
+          phone: phone,
+          email: email,
+          displayName: displayName,
+          verified: false,
+          createdAt: now.toDate(),
         );
-        return false;
+
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          user: userModel,
+        );
+        return true;
       }
 
-      final user = UserModel(
-        id: 'user_${DateTime.now().millisecondsSinceEpoch}',
-        cnicHash: 'mock_hash',
-        phone: '+92 300 0000000',
-        email: email,
-        displayName: displayName,
-        verified: false,
-        createdAt: DateTime.now(),
-      );
-
-      await _secureStorage.write(
-        key: AppConstants.tokenKey,
-        value: 'mock_jwt_token_${DateTime.now().millisecondsSinceEpoch}',
-      );
-
       state = state.copyWith(
-        status: AuthStatus.authenticated,
-        user: user,
+        status: AuthStatus.error,
+        errorMessage: 'Sign up failed. Please try again.',
       );
-      return true;
+      return false;
+    } on FirebaseAuthException catch (e) {
+      final message = switch (e.code) {
+        'email-already-in-use' => 'An account already exists with this email.',
+        'weak-password' => 'Password is too weak. Use at least 6 characters.',
+        'invalid-email' => 'Please enter a valid email address.',
+        'operation-not-allowed' => 'Email/password accounts are not enabled.',
+        _ => e.message ?? 'Sign up failed. Please try again.',
+      };
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: message,
+      );
+      return false;
     } catch (e) {
       state = state.copyWith(
         status: AuthStatus.error,
@@ -138,47 +207,108 @@ class AuthRepository extends StateNotifier<AuthState> {
     }
   }
 
-  /// Send password reset email (mock).
+  /// Send password reset email.
   Future<bool> forgotPassword(String email) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
-    await Future.delayed(const Duration(milliseconds: 800));
 
-    if (email.isEmpty) {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      state = state.copyWith(status: AuthStatus.unauthenticated);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      final message = switch (e.code) {
+        'user-not-found' => 'No account found with this email.',
+        'invalid-email' => 'Please enter a valid email address.',
+        _ => e.message ?? 'Failed to send reset email.',
+      };
       state = state.copyWith(
         status: AuthStatus.error,
-        errorMessage: 'Email is required.',
+        errorMessage: message,
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: 'Failed to send reset email: $e',
       );
       return false;
     }
-
-    state = state.copyWith(status: AuthStatus.unauthenticated);
-    return true;
   }
 
   /// Check for existing session on app start.
   Future<void> checkSession() async {
-    final token = await _secureStorage.read(key: AppConstants.tokenKey);
-    if (token != null && token.isNotEmpty) {
-      // In production: validate token with backend
-      state = state.copyWith(
-        status: AuthStatus.authenticated,
-        user: UserModel(
-          id: 'user_001',
-          cnicHash: 'mock_hash',
-          phone: '+92 300 1234567',
-          email: 'user@sport0zero.com',
-          displayName: 'Player',
-          verified: true,
-          createdAt: DateTime.now(),
-        ),
-      );
+    final firebaseUser = _auth.currentUser;
+    if (firebaseUser != null) {
+      try {
+        final userModel = await _buildUserModel(firebaseUser);
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          user: userModel,
+        );
+      } catch (e) {
+        // If profile fetch fails, still mark as authenticated with basic info
+        state = state.copyWith(
+          status: AuthStatus.authenticated,
+          user: UserModel(
+            id: firebaseUser.uid,
+            cnicHash: '',
+            phone: firebaseUser.phoneNumber ?? '',
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoUrl: firebaseUser.photoURL,
+            verified: firebaseUser.emailVerified,
+            createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
+          ),
+        );
+      }
     }
   }
 
-  /// Log out and clear stored credentials.
+  /// Log out and clear auth state.
   Future<void> logout() async {
-    await _secureStorage.delete(key: AppConstants.tokenKey);
+    await _auth.signOut();
     state = const AuthState();
+  }
+
+  /// Delete the current user's account (Firestore profile + Auth user).
+  Future<bool> deleteAccount() async {
+    state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
+
+    try {
+      final uid = _auth.currentUser?.uid;
+      if (uid == null) {
+        state = state.copyWith(
+          status: AuthStatus.error,
+          errorMessage: 'No user is currently signed in.',
+        );
+        return false;
+      }
+
+      // Delete Firestore profile
+      await _firestore.collection('profiles').doc(uid).delete();
+
+      // Delete Firebase Auth user
+      await _auth.currentUser?.delete();
+
+      state = const AuthState();
+      return true;
+    } on FirebaseAuthException catch (e) {
+      final message = switch (e.code) {
+        'requires-recent-login' => 'Please log out and log back in before deleting your account.',
+        _ => e.message ?? 'Failed to delete account.',
+      };
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: message,
+      );
+      return false;
+    } catch (e) {
+      state = state.copyWith(
+        status: AuthStatus.error,
+        errorMessage: 'Failed to delete account: $e',
+      );
+      return false;
+    }
   }
 
   /// Clear error state.
