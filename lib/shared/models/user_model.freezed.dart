@@ -29,7 +29,20 @@ mixin _$UserModel {
   DateTime get createdAt => throw _privateConstructorUsedError;
   String? get email => throw _privateConstructorUsedError;
   String? get displayName => throw _privateConstructorUsedError;
-  String? get photoUrl => throw _privateConstructorUsedError;
+  String? get photoUrl =>
+      throw _privateConstructorUsedError; // FR-10: Profile Information
+  DateTime? get dateOfBirth => throw _privateConstructorUsedError;
+  String? get city => throw _privateConstructorUsedError;
+  List<String> get primarySports => throw _privateConstructorUsedError;
+  String? get playingPosition => throw _privateConstructorUsedError;
+  BattingHand get battingHand => throw _privateConstructorUsedError;
+  BowlingHand get bowlingHand => throw _privateConstructorUsedError;
+  PlayingHand get dominantHand =>
+      throw _privateConstructorUsedError; // FR-11: Contact Info
+  String? get whatsappNumber => throw _privateConstructorUsedError;
+  bool get showContactToScouts =>
+      throw _privateConstructorUsedError; // FR-18: Privacy
+  PrivacyMode get privacyMode => throw _privateConstructorUsedError;
 
   /// Serializes this UserModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -56,6 +69,16 @@ abstract class $UserModelCopyWith<$Res> {
     String? email,
     String? displayName,
     String? photoUrl,
+    DateTime? dateOfBirth,
+    String? city,
+    List<String> primarySports,
+    String? playingPosition,
+    BattingHand battingHand,
+    BowlingHand bowlingHand,
+    PlayingHand dominantHand,
+    String? whatsappNumber,
+    bool showContactToScouts,
+    PrivacyMode privacyMode,
   });
 }
 
@@ -83,6 +106,16 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? email = freezed,
     Object? displayName = freezed,
     Object? photoUrl = freezed,
+    Object? dateOfBirth = freezed,
+    Object? city = freezed,
+    Object? primarySports = null,
+    Object? playingPosition = freezed,
+    Object? battingHand = null,
+    Object? bowlingHand = null,
+    Object? dominantHand = null,
+    Object? whatsappNumber = freezed,
+    Object? showContactToScouts = null,
+    Object? privacyMode = null,
   }) {
     return _then(
       _value.copyWith(
@@ -122,6 +155,46 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                 ? _value.photoUrl
                 : photoUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
+            dateOfBirth: freezed == dateOfBirth
+                ? _value.dateOfBirth
+                : dateOfBirth // ignore: cast_nullable_to_non_nullable
+                      as DateTime?,
+            city: freezed == city
+                ? _value.city
+                : city // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            primarySports: null == primarySports
+                ? _value.primarySports
+                : primarySports // ignore: cast_nullable_to_non_nullable
+                      as List<String>,
+            playingPosition: freezed == playingPosition
+                ? _value.playingPosition
+                : playingPosition // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            battingHand: null == battingHand
+                ? _value.battingHand
+                : battingHand // ignore: cast_nullable_to_non_nullable
+                      as BattingHand,
+            bowlingHand: null == bowlingHand
+                ? _value.bowlingHand
+                : bowlingHand // ignore: cast_nullable_to_non_nullable
+                      as BowlingHand,
+            dominantHand: null == dominantHand
+                ? _value.dominantHand
+                : dominantHand // ignore: cast_nullable_to_non_nullable
+                      as PlayingHand,
+            whatsappNumber: freezed == whatsappNumber
+                ? _value.whatsappNumber
+                : whatsappNumber // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            showContactToScouts: null == showContactToScouts
+                ? _value.showContactToScouts
+                : showContactToScouts // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            privacyMode: null == privacyMode
+                ? _value.privacyMode
+                : privacyMode // ignore: cast_nullable_to_non_nullable
+                      as PrivacyMode,
           )
           as $Val,
     );
@@ -147,6 +220,16 @@ abstract class _$$UserModelImplCopyWith<$Res>
     String? email,
     String? displayName,
     String? photoUrl,
+    DateTime? dateOfBirth,
+    String? city,
+    List<String> primarySports,
+    String? playingPosition,
+    BattingHand battingHand,
+    BowlingHand bowlingHand,
+    PlayingHand dominantHand,
+    String? whatsappNumber,
+    bool showContactToScouts,
+    PrivacyMode privacyMode,
   });
 }
 
@@ -173,6 +256,16 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? email = freezed,
     Object? displayName = freezed,
     Object? photoUrl = freezed,
+    Object? dateOfBirth = freezed,
+    Object? city = freezed,
+    Object? primarySports = null,
+    Object? playingPosition = freezed,
+    Object? battingHand = null,
+    Object? bowlingHand = null,
+    Object? dominantHand = null,
+    Object? whatsappNumber = freezed,
+    Object? showContactToScouts = null,
+    Object? privacyMode = null,
   }) {
     return _then(
       _$UserModelImpl(
@@ -212,6 +305,46 @@ class __$$UserModelImplCopyWithImpl<$Res>
             ? _value.photoUrl
             : photoUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
+        dateOfBirth: freezed == dateOfBirth
+            ? _value.dateOfBirth
+            : dateOfBirth // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        city: freezed == city
+            ? _value.city
+            : city // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        primarySports: null == primarySports
+            ? _value._primarySports
+            : primarySports // ignore: cast_nullable_to_non_nullable
+                  as List<String>,
+        playingPosition: freezed == playingPosition
+            ? _value.playingPosition
+            : playingPosition // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        battingHand: null == battingHand
+            ? _value.battingHand
+            : battingHand // ignore: cast_nullable_to_non_nullable
+                  as BattingHand,
+        bowlingHand: null == bowlingHand
+            ? _value.bowlingHand
+            : bowlingHand // ignore: cast_nullable_to_non_nullable
+                  as BowlingHand,
+        dominantHand: null == dominantHand
+            ? _value.dominantHand
+            : dominantHand // ignore: cast_nullable_to_non_nullable
+                  as PlayingHand,
+        whatsappNumber: freezed == whatsappNumber
+            ? _value.whatsappNumber
+            : whatsappNumber // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        showContactToScouts: null == showContactToScouts
+            ? _value.showContactToScouts
+            : showContactToScouts // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        privacyMode: null == privacyMode
+            ? _value.privacyMode
+            : privacyMode // ignore: cast_nullable_to_non_nullable
+                  as PrivacyMode,
       ),
     );
   }
@@ -230,7 +363,18 @@ class _$UserModelImpl implements _UserModel {
     this.email,
     this.displayName,
     this.photoUrl,
-  }) : _roles = roles;
+    this.dateOfBirth,
+    this.city,
+    final List<String> primarySports = const [],
+    this.playingPosition,
+    this.battingHand = BattingHand.right,
+    this.bowlingHand = BowlingHand.none,
+    this.dominantHand = PlayingHand.right,
+    this.whatsappNumber,
+    this.showContactToScouts = false,
+    this.privacyMode = PrivacyMode.public,
+  }) : _roles = roles,
+       _primarySports = primarySports;
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserModelImplFromJson(json);
@@ -261,10 +405,45 @@ class _$UserModelImpl implements _UserModel {
   final String? displayName;
   @override
   final String? photoUrl;
+  // FR-10: Profile Information
+  @override
+  final DateTime? dateOfBirth;
+  @override
+  final String? city;
+  final List<String> _primarySports;
+  @override
+  @JsonKey()
+  List<String> get primarySports {
+    if (_primarySports is EqualUnmodifiableListView) return _primarySports;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_primarySports);
+  }
+
+  @override
+  final String? playingPosition;
+  @override
+  @JsonKey()
+  final BattingHand battingHand;
+  @override
+  @JsonKey()
+  final BowlingHand bowlingHand;
+  @override
+  @JsonKey()
+  final PlayingHand dominantHand;
+  // FR-11: Contact Info
+  @override
+  final String? whatsappNumber;
+  @override
+  @JsonKey()
+  final bool showContactToScouts;
+  // FR-18: Privacy
+  @override
+  @JsonKey()
+  final PrivacyMode privacyMode;
 
   @override
   String toString() {
-    return 'UserModel(id: $id, cnicHash: $cnicHash, phone: $phone, verified: $verified, roles: $roles, createdAt: $createdAt, email: $email, displayName: $displayName, photoUrl: $photoUrl)';
+    return 'UserModel(id: $id, cnicHash: $cnicHash, phone: $phone, verified: $verified, roles: $roles, createdAt: $createdAt, email: $email, displayName: $displayName, photoUrl: $photoUrl, dateOfBirth: $dateOfBirth, city: $city, primarySports: $primarySports, playingPosition: $playingPosition, battingHand: $battingHand, bowlingHand: $bowlingHand, dominantHand: $dominantHand, whatsappNumber: $whatsappNumber, showContactToScouts: $showContactToScouts, privacyMode: $privacyMode)';
   }
 
   @override
@@ -285,12 +464,33 @@ class _$UserModelImpl implements _UserModel {
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
             (identical(other.photoUrl, photoUrl) ||
-                other.photoUrl == photoUrl));
+                other.photoUrl == photoUrl) &&
+            (identical(other.dateOfBirth, dateOfBirth) ||
+                other.dateOfBirth == dateOfBirth) &&
+            (identical(other.city, city) || other.city == city) &&
+            const DeepCollectionEquality().equals(
+              other._primarySports,
+              _primarySports,
+            ) &&
+            (identical(other.playingPosition, playingPosition) ||
+                other.playingPosition == playingPosition) &&
+            (identical(other.battingHand, battingHand) ||
+                other.battingHand == battingHand) &&
+            (identical(other.bowlingHand, bowlingHand) ||
+                other.bowlingHand == bowlingHand) &&
+            (identical(other.dominantHand, dominantHand) ||
+                other.dominantHand == dominantHand) &&
+            (identical(other.whatsappNumber, whatsappNumber) ||
+                other.whatsappNumber == whatsappNumber) &&
+            (identical(other.showContactToScouts, showContactToScouts) ||
+                other.showContactToScouts == showContactToScouts) &&
+            (identical(other.privacyMode, privacyMode) ||
+                other.privacyMode == privacyMode));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     cnicHash,
@@ -301,7 +501,17 @@ class _$UserModelImpl implements _UserModel {
     email,
     displayName,
     photoUrl,
-  );
+    dateOfBirth,
+    city,
+    const DeepCollectionEquality().hash(_primarySports),
+    playingPosition,
+    battingHand,
+    bowlingHand,
+    dominantHand,
+    whatsappNumber,
+    showContactToScouts,
+    privacyMode,
+  ]);
 
   /// Create a copy of UserModel
   /// with the given fields replaced by the non-null parameter values.
@@ -328,6 +538,16 @@ abstract class _UserModel implements UserModel {
     final String? email,
     final String? displayName,
     final String? photoUrl,
+    final DateTime? dateOfBirth,
+    final String? city,
+    final List<String> primarySports,
+    final String? playingPosition,
+    final BattingHand battingHand,
+    final BowlingHand bowlingHand,
+    final PlayingHand dominantHand,
+    final String? whatsappNumber,
+    final bool showContactToScouts,
+    final PrivacyMode privacyMode,
   }) = _$UserModelImpl;
 
   factory _UserModel.fromJson(Map<String, dynamic> json) =
@@ -350,7 +570,27 @@ abstract class _UserModel implements UserModel {
   @override
   String? get displayName;
   @override
-  String? get photoUrl;
+  String? get photoUrl; // FR-10: Profile Information
+  @override
+  DateTime? get dateOfBirth;
+  @override
+  String? get city;
+  @override
+  List<String> get primarySports;
+  @override
+  String? get playingPosition;
+  @override
+  BattingHand get battingHand;
+  @override
+  BowlingHand get bowlingHand;
+  @override
+  PlayingHand get dominantHand; // FR-11: Contact Info
+  @override
+  String? get whatsappNumber;
+  @override
+  bool get showContactToScouts; // FR-18: Privacy
+  @override
+  PrivacyMode get privacyMode;
 
   /// Create a copy of UserModel
   /// with the given fields replaced by the non-null parameter values.

@@ -34,15 +34,28 @@ class AuthState {
 /// Repository + state notifier for authentication.
 /// Uses Firebase Auth for real authentication.
 class AuthRepository extends StateNotifier<AuthState> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth? _auth;
+  final FirebaseFirestore? _firestore;
 
-  AuthRepository() : super(const AuthState());
+  AuthRepository() 
+    : _auth = _tryAuth(),
+      _firestore = _tryFirestore(),
+      super(const AuthState());
+
+  static FirebaseAuth? _tryAuth() {
+    try { return FirebaseAuth.instance; } catch (_) { return null; }
+  }
+
+  static FirebaseFirestore? _tryFirestore() {
+    try { return FirebaseFirestore.instance; } catch (_) { return null; }
+  }
+
+  bool get _firebaseAvailable => _auth != null;
 
   /// Convert Firebase User + Firestore profile to UserModel
   Future<UserModel> _buildUserModel(User firebaseUser) async {
     // Try to fetch profile from Firestore
-    final doc = await _firestore.collection('profiles').doc(firebaseUser.uid).get();
+    final doc = await _firestore!.collection('profiles').doc(firebaseUser.uid).get();
 
     if (doc.exists) {
       final data = doc.data()!;
@@ -92,7 +105,7 @@ class AuthRepository extends StateNotifier<AuthState> {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
     try {
-      final credential = await _auth.signInWithEmailAndPassword(
+      final credential = await _auth!.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -140,7 +153,7 @@ class AuthRepository extends StateNotifier<AuthState> {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
     try {
-      final credential = await _auth.createUserWithEmailAndPassword(
+      final credential = await _auth!.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -151,7 +164,7 @@ class AuthRepository extends StateNotifier<AuthState> {
 
         // Create profile document in Firestore
         final now = Timestamp.now();
-        await _firestore.collection('profiles').doc(credential.user!.uid).set({
+        await _firestore!.collection('profiles').doc(credential.user!.uid).set({
           'displayName': displayName,
           'phone': phone,
           'email': email,
@@ -212,7 +225,7 @@ class AuthRepository extends StateNotifier<AuthState> {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      await _auth!.sendPasswordResetEmail(email: email);
       state = state.copyWith(status: AuthStatus.unauthenticated);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -237,36 +250,43 @@ class AuthRepository extends StateNotifier<AuthState> {
 
   /// Check for existing session on app start.
   Future<void> checkSession() async {
-    final firebaseUser = _auth.currentUser;
-    if (firebaseUser != null) {
-      try {
-        final userModel = await _buildUserModel(firebaseUser);
-        state = state.copyWith(
-          status: AuthStatus.authenticated,
-          user: userModel,
-        );
-      } catch (e) {
-        // If profile fetch fails, still mark as authenticated with basic info
-        state = state.copyWith(
-          status: AuthStatus.authenticated,
-          user: UserModel(
-            id: firebaseUser.uid,
-            cnicHash: '',
-            phone: firebaseUser.phoneNumber ?? '',
-            email: firebaseUser.email,
-            displayName: firebaseUser.displayName,
-            photoUrl: firebaseUser.photoURL,
-            verified: firebaseUser.emailVerified,
-            createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
-          ),
-        );
+    try {
+      final firebaseUser = _auth?.currentUser;
+      if (firebaseUser != null) {
+        try {
+          final userModel = await _buildUserModel(firebaseUser);
+          state = state.copyWith(
+            status: AuthStatus.authenticated,
+            user: userModel,
+          );
+        } catch (e) {
+          // If profile fetch fails, still mark as authenticated with basic info
+          state = state.copyWith(
+            status: AuthStatus.authenticated,
+            user: UserModel(
+              id: firebaseUser.uid,
+              cnicHash: '',
+              phone: firebaseUser.phoneNumber ?? '',
+              email: firebaseUser.email,
+              displayName: firebaseUser.displayName,
+              photoUrl: firebaseUser.photoURL,
+              verified: firebaseUser.emailVerified,
+              createdAt: firebaseUser.metadata.creationTime ?? DateTime.now(),
+            ),
+          );
+        }
       }
+    } catch (_) {
+      // Firebase not initialized — stay unauthenticated, demo login still works.
     }
   }
 
   /// Log out and clear auth state.
   Future<void> logout() async {
-    await _auth.signOut();
+    // Sign out from Firebase if a real user is signed in; otherwise just clear local state.
+    if (_auth?.currentUser != null) {
+      await _auth!.signOut();
+    }
     state = const AuthState();
   }
 
@@ -275,7 +295,7 @@ class AuthRepository extends StateNotifier<AuthState> {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
     try {
-      final uid = _auth.currentUser?.uid;
+      final uid = _auth?.currentUser?.uid;
       if (uid == null) {
         state = state.copyWith(
           status: AuthStatus.error,
@@ -285,10 +305,10 @@ class AuthRepository extends StateNotifier<AuthState> {
       }
 
       // Delete Firestore profile
-      await _firestore.collection('profiles').doc(uid).delete();
+      await _firestore!.collection('profiles').doc(uid).delete();
 
       // Delete Firebase Auth user
-      await _auth.currentUser?.delete();
+      await _auth?.currentUser?.delete();
 
       state = const AuthState();
       return true;
@@ -316,5 +336,47 @@ class AuthRepository extends StateNotifier<AuthState> {
     if (state.status == AuthStatus.error) {
       state = state.copyWith(status: AuthStatus.unauthenticated);
     }
+  }
+
+  /// Instant demo login — bypasses Firebase completely and sets auth state
+  /// with a mock UserModel pre-assigned to the given role.
+  /// Use this for web-only local development and role-based dashboard testing.
+  void demoLogin(UserRole role) {
+    state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
+
+    final demoNames = {
+      UserRole.player:    'Haseeb Ahmed',
+      UserRole.manager:   'Sara Khan',
+      UserRole.organizer: 'Ahmed Raza',
+      UserRole.admin:     'Admin User',
+    };
+    final demoEmails = {
+      UserRole.player:    'player@demo.com',
+      UserRole.manager:   'manager@demo.com',
+      UserRole.organizer: 'organizer@demo.com',
+      UserRole.admin:     'admin@demo.com',
+    };
+    final demoIds = {
+      UserRole.player:    'demo_player_001',
+      UserRole.manager:   'demo_manager_001',
+      UserRole.organizer: 'demo_organizer_001',
+      UserRole.admin:     'demo_admin_001',
+    };
+
+    final user = UserModel(
+      id: demoIds[role]!,
+      cnicHash: '',
+      phone: '+92 300 0000000',
+      email: demoEmails[role],
+      displayName: demoNames[role],
+      verified: true,
+      roles: [role],
+      createdAt: DateTime.now(),
+    );
+
+    state = AuthState(
+      status: AuthStatus.authenticated,
+      user: user,
+    );
   }
 }

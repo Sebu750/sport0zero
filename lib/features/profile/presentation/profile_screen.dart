@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/section_header.dart';
@@ -16,6 +17,12 @@ class ProfileScreen extends ConsumerWidget {
     final achievements = ref.watch(achievementsProvider);
     final completedMatches = ref.watch(mockCompletedMatchesProvider);
     final width = MediaQuery.of(context).size.width;
+
+    if (user == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -52,7 +59,7 @@ class ProfileScreen extends ConsumerWidget {
                     child: CircleAvatar(
                       radius: 36,
                       backgroundColor: Colors.white.withValues(alpha: 0.2),
-                      child: user.photoUrl != null
+                      child: (user.photoUrl != null && user.photoUrl!.isNotEmpty)
                           ? ClipOval(
                               child: Image.network(user.photoUrl!,
                                   width: 72, height: 72, fit: BoxFit.cover),
@@ -112,6 +119,17 @@ class ProfileScreen extends ConsumerWidget {
                             ),
                           ),
                       ],
+                    ),
+                  ),
+                  // Edit button
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.edit_outlined, size: 18, color: Colors.white),
+                      onPressed: () => context.go('/edit-profile'),
                     ),
                   ),
                 ],

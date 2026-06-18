@@ -519,3 +519,149 @@ final mockAchievements = [
     earnedAt: DateTime(2025, 1, 15),
   ),
 ];
+
+// ── Manager Dashboard Mock Data ──────────────────────────────────────────────
+class ManagerDashboardStats {
+  final int teamsManaged;
+  final int totalPlayers;
+  final int upcomingFixtures;
+  final int pendingRequests;
+
+  const ManagerDashboardStats({
+    required this.teamsManaged,
+    required this.totalPlayers,
+    required this.upcomingFixtures,
+    required this.pendingRequests,
+  });
+}
+
+const mockManagerStats = ManagerDashboardStats(
+  teamsManaged: 2,
+  totalPlayers: 28,
+  upcomingFixtures: 4,
+  pendingRequests: 3,
+);
+
+class PlayerAvailability {
+  final String name;
+  final String role;
+  final bool available;
+
+  const PlayerAvailability({required this.name, required this.role, required this.available});
+}
+
+final mockPlayerAvailability = [
+  PlayerAvailability(name: 'Ali Raza', role: 'Batsman', available: true),
+  PlayerAvailability(name: 'Bilal Khan', role: 'Bowler', available: true),
+  PlayerAvailability(name: 'Hassan Sheikh', role: 'All-rounder', available: false),
+  PlayerAvailability(name: 'Zain Abbas', role: 'Wicketkeeper', available: true),
+  PlayerAvailability(name: 'Usman Tariq', role: 'Bowler', available: false),
+];
+
+class TeamPerformance {
+  final String teamName;
+  final int wins;
+  final int losses;
+  final int draws;
+
+  const TeamPerformance({required this.teamName, required this.wins, required this.losses, required this.draws});
+}
+
+final mockTeamPerformance = [
+  TeamPerformance(teamName: 'Lahore Strikers', wins: 8, losses: 3, draws: 1),
+  TeamPerformance(teamName: 'Karachi Kings', wins: 6, losses: 5, draws: 1),
+];
+
+// ── Organizer Dashboard Mock Data ────────────────────────────────────────────
+class OrganizerDashboardStats {
+  final int activeTournaments;
+  final int totalRegistrations;
+  final int pendingApprovals;
+  final int upcomingFixtures;
+
+  const OrganizerDashboardStats({
+    required this.activeTournaments,
+    required this.totalRegistrations,
+    required this.pendingApprovals,
+    required this.upcomingFixtures,
+  });
+}
+
+const mockOrganizerStats = OrganizerDashboardStats(
+  activeTournaments: 2,
+  totalRegistrations: 18,
+  pendingApprovals: 4,
+  upcomingFixtures: 9,
+);
+
+class RegistrationSummary {
+  final String tournamentName;
+  final int registered;
+  final int pending;
+  final int capacity;
+
+  const RegistrationSummary({
+    required this.tournamentName,
+    required this.registered,
+    required this.pending,
+    required this.capacity,
+  });
+}
+
+final mockRegistrationSummary = [
+  RegistrationSummary(tournamentName: 'Premier T20 League 2026', registered: 12, pending: 2, capacity: 16),
+  RegistrationSummary(tournamentName: 'Ramadan Night Cricket Cup', registered: 6, pending: 2, capacity: 8),
+];
+
+// ── Admin Dashboard Mock Data ────────────────────────────────────────────────
+class AdminDashboardStats {
+  final int totalUsers;
+  final int activeToday;
+  final int totalTournaments;
+  final int flaggedContent;
+
+  const AdminDashboardStats({
+    required this.totalUsers,
+    required this.activeToday,
+    required this.totalTournaments,
+    required this.flaggedContent,
+  });
+}
+
+const mockAdminStats = AdminDashboardStats(
+  totalUsers: 1284,
+  activeToday: 342,
+  totalTournaments: 24,
+  flaggedContent: 7,
+);
+
+class UserGrowthEntry {
+  final String month;
+  final int count;
+
+  const UserGrowthEntry({required this.month, required this.count});
+}
+
+final mockUserGrowth = [
+  UserGrowthEntry(month: 'Jan', count: 820),
+  UserGrowthEntry(month: 'Feb', count: 932),
+  UserGrowthEntry(month: 'Mar', count: 1045),
+  UserGrowthEntry(month: 'Apr', count: 1156),
+  UserGrowthEntry(month: 'May', count: 1218),
+  UserGrowthEntry(month: 'Jun', count: 1284),
+];
+
+class PlatformActivityItem {
+  final String event;
+  final String detail;
+  final DateTime time;
+
+  const PlatformActivityItem({required this.event, required this.detail, required this.time});
+}
+
+final mockPlatformActivity = [
+  PlatformActivityItem(event: 'New user registered', detail: 'ali@example.com', time: DateTime.now().subtract(const Duration(minutes: 12))),
+  PlatformActivityItem(event: 'Tournament created', detail: 'Inter-City T10 Blast', time: DateTime.now().subtract(const Duration(hours: 1))),
+  PlatformActivityItem(event: 'Content flagged', detail: 'Offensive chat message', time: DateTime.now().subtract(const Duration(hours: 3))),
+  PlatformActivityItem(event: 'Team registered', detail: 'Multan Tigers', time: DateTime.now().subtract(const Duration(hours: 5))),
+];

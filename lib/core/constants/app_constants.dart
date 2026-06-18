@@ -1,3 +1,5 @@
+import '../../shared/models/user_model.dart';
+
 class AppConstants {
   AppConstants._();
 
@@ -21,4 +23,12 @@ class AppConstants {
   static const String tokenKey = 'auth_token';
   static const String userKey = 'current_user';
   static const String themeKey = 'theme_mode';
+
+  // Demo accounts for role-based login (Firebase + demo password)
+  static const Map<UserRole, ({String email, String password, String label})> demoAccounts = {
+    UserRole.player:    (email: 'player@demo.com',    password: 'demo1234', label: 'Demo Player'),
+    UserRole.manager:   (email: 'manager@demo.com',   password: 'demo1234', label: 'Demo Manager'),
+    UserRole.organizer: (email: 'organizer@demo.com', password: 'demo1234', label: 'Demo Organizer'),
+    UserRole.admin:     (email: 'admin@demo.com',     password: 'demo1234', label: 'Demo Admin'),
+  };
 }

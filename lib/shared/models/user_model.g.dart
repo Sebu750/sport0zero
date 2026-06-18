@@ -21,6 +21,30 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       email: json['email'] as String?,
       displayName: json['displayName'] as String?,
       photoUrl: json['photoUrl'] as String?,
+      dateOfBirth: json['dateOfBirth'] == null
+          ? null
+          : DateTime.parse(json['dateOfBirth'] as String),
+      city: json['city'] as String?,
+      primarySports:
+          (json['primarySports'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          const [],
+      playingPosition: json['playingPosition'] as String?,
+      battingHand:
+          $enumDecodeNullable(_$BattingHandEnumMap, json['battingHand']) ??
+          BattingHand.right,
+      bowlingHand:
+          $enumDecodeNullable(_$BowlingHandEnumMap, json['bowlingHand']) ??
+          BowlingHand.none,
+      dominantHand:
+          $enumDecodeNullable(_$PlayingHandEnumMap, json['dominantHand']) ??
+          PlayingHand.right,
+      whatsappNumber: json['whatsappNumber'] as String?,
+      showContactToScouts: json['showContactToScouts'] as bool? ?? false,
+      privacyMode:
+          $enumDecodeNullable(_$PrivacyModeEnumMap, json['privacyMode']) ??
+          PrivacyMode.public,
     );
 
 Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
@@ -34,6 +58,16 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'email': instance.email,
       'displayName': instance.displayName,
       'photoUrl': instance.photoUrl,
+      'dateOfBirth': instance.dateOfBirth?.toIso8601String(),
+      'city': instance.city,
+      'primarySports': instance.primarySports,
+      'playingPosition': instance.playingPosition,
+      'battingHand': _$BattingHandEnumMap[instance.battingHand]!,
+      'bowlingHand': _$BowlingHandEnumMap[instance.bowlingHand]!,
+      'dominantHand': _$PlayingHandEnumMap[instance.dominantHand]!,
+      'whatsappNumber': instance.whatsappNumber,
+      'showContactToScouts': instance.showContactToScouts,
+      'privacyMode': _$PrivacyModeEnumMap[instance.privacyMode]!,
     };
 
 const _$UserRoleEnumMap = {
@@ -41,4 +75,27 @@ const _$UserRoleEnumMap = {
   UserRole.manager: 'manager',
   UserRole.organizer: 'organizer',
   UserRole.admin: 'admin',
+};
+
+const _$BattingHandEnumMap = {
+  BattingHand.right: 'right',
+  BattingHand.left: 'left',
+  BattingHand.both: 'both',
+};
+
+const _$BowlingHandEnumMap = {
+  BowlingHand.right: 'right',
+  BowlingHand.left: 'left',
+  BowlingHand.none: 'none',
+};
+
+const _$PlayingHandEnumMap = {
+  PlayingHand.right: 'right',
+  PlayingHand.left: 'left',
+  PlayingHand.both: 'both',
+};
+
+const _$PrivacyModeEnumMap = {
+  PrivacyMode.public: 'public',
+  PrivacyMode.private: 'private',
 };

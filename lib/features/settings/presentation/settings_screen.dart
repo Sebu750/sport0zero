@@ -26,25 +26,25 @@ class SettingsScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.person_outline),
                   title: const Text('Display Name'),
-                  subtitle: Text(user.displayName ?? 'Not set'),
+                  subtitle: Text(user?.displayName ?? 'Not set'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
+                  onTap: () => context.go('/edit-profile'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.email_outlined),
                   title: const Text('Email'),
-                  subtitle: Text(user.email ?? 'Not set'),
+                  subtitle: Text(user?.email ?? 'Not set'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
+                  onTap: () => context.go('/edit-profile'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.phone_outlined),
                   title: const Text('Phone'),
-                  subtitle: Text(user.phone),
+                  subtitle: Text(user?.phone ?? 'Not set'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {},
+                  onTap: () => context.go('/edit-profile'),
                 ),
               ],
             ),
@@ -164,6 +164,25 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
+
+          // Danger Zone: Delete Account
+          Card(
+            color: AppColors.error.withValues(alpha: 0.04),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(left: BorderSide(color: AppColors.error, width: 4)),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.delete_forever, color: AppColors.error),
+                title: const Text('Delete Account',
+                    style: TextStyle(color: AppColors.error, fontWeight: FontWeight.w600)),
+                subtitle: const Text('Permanently delete your account and all data',
+                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                onTap: () => _showDeleteDialog(context, ref),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           Center(
             child: Text('Sport0Zero v1.0.0',
                 style: TextStyle(fontSize: 11, color: AppColors.textSecondary.withValues(alpha: 0.7))),
@@ -179,5 +198,43 @@ class SettingsScreen extends ConsumerWidget {
       child: Text(label,
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
     );
+  }
+
+  Future<void> _showDeleteDialog(BuildContext context, WidgetRef ref) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Account',
+            style: TextStyle(color: AppColors.error)),
+        content: const Text(
+          'This action is irreversible. Your profile, match history, and all data will be permanently deleted.\n\nAre you sure?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete Permanently'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && context.mounted) {
+      final success = await ref.read(authProvider.notifier).deleteAccount();
+      if (context.mounted) {
+        if (success) {
+          context.go('/login');
+        } else {
+          final errMsg = ref.read(authProvider).errorMessage ?? 'Failed to delete account.';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errMsg), backgroundColor: AppColors.error),
+          );
+        }
+      }
+    }
   }
 }

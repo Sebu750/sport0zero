@@ -21,16 +21,23 @@ class StatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardColor = color ?? AppColors.primary;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? AppColors.surfaceDark : Colors.white;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textSecondary = isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return Card(
+      color: bgColor,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
+        hoverColor: cardColor.withValues(alpha: 0.04),
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: cardColor.withValues(alpha: 0.12),
+                color: cardColor.withValues(alpha: isDark ? 0.2 : 0.12),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -57,7 +64,7 @@ class StatCard extends StatelessWidget {
                     Container(
                       width: 40, height: 40,
                       decoration: BoxDecoration(
-                        color: cardColor.withValues(alpha: 0.08),
+                        color: cardColor.withValues(alpha: isDark ? 0.15 : 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(icon, color: cardColor, size: 20),
@@ -71,7 +78,7 @@ class StatCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
+                            color: textPrimary,
                             height: 1,
                           ),
                         ),
@@ -85,9 +92,9 @@ class StatCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       label,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),

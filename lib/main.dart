@@ -11,10 +11,14 @@ import 'shared/providers/app_providers.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialize Firebase — optional; app works in demo mode if it fails.
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase init skipped — running in demo-only mode: $e');
+  }
 
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
@@ -43,7 +47,7 @@ class Sport0ZeroApp extends ConsumerWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ref.read(themeProvider.notifier).themeMode,
-      routerConfig: appRouter,
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }

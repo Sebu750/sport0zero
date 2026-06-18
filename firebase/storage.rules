@@ -1,0 +1,36 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ── Profile avatars ────────────────────────────────────────────────────────
+    // Path: avatars/{uid}/photo
+    // Owner can upload (max 2MB), authenticated users can read.
+    match /avatars/{uid}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size <= 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null
+        && request.auth.uid == uid;
+    }
+
+    // ── Team logos ─────────────────────────────────────────────────────────────
+    // Path: team_logos/{teamId}/logo
+    // Authenticated users read; team captain writes.
+    match /team_logos/{teamId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.resource.size <= 1 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // ── Match attachments (scorecard photos, etc.) ─────────────────────────────
+    // Path: match_attachments/{matchId}/{fileName}
+    match /match_attachments/{matchId}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+        && request.resource.size <= 5 * 1024 * 1024;
+    }
+  }
+}

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/user_model.dart';
 import '../../../shared/providers/app_providers.dart';
 import '../data/auth_repository.dart';
 
@@ -34,9 +36,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
 
     if (success && mounted) {
-      context.go('/home');
+      context.go('/dashboard');
     }
   }
+
+  void _handleDemoLogin(UserRole role) {
+    final repo = ref.read(authProvider.notifier);
+    repo.demoLogin(role);
+    if (mounted) context.go('/dashboard');
+  }
+
+  IconData _iconForRole(UserRole role) => switch (role) {
+    UserRole.player    => Icons.sports_cricket,
+    UserRole.manager   => Icons.manage_accounts,
+    UserRole.organizer => Icons.emoji_events,
+    UserRole.admin     => Icons.admin_panel_settings,
+  };
+
+  Color _colorForRole(UserRole role) => switch (role) {
+    UserRole.player    => AppColors.primary,
+    UserRole.manager   => AppColors.accent,
+    UserRole.organizer => Colors.purple.shade600,
+    UserRole.admin     => AppColors.error,
+  };
+
+  String _descForRole(UserRole role) => switch (role) {
+    UserRole.player    => 'Stats, matches & teams',
+    UserRole.manager   => 'Roster & team management',
+    UserRole.organizer => 'Tournaments & fixtures',
+    UserRole.admin     => 'Platform administration',
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +110,81 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         color: AppColors.textSecondary,
                       ),
                     ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 8),
+                    // Demo mode pill
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.success.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.bolt, size: 13, color: AppColors.success),
+                            const SizedBox(width: 4),
+                            Text('Instant Demo — No account needed',
+                                style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Demo role cards
+                    ...UserRole.values.map((role) {
+                      final account = AppConstants.demoAccounts[role]!;
+                      final color = _colorForRole(role);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: isLoading ? null : () => _handleDemoLogin(role),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
+                                borderRadius: BorderRadius.circular(12),
+                                color: color.withValues(alpha: 0.04),
+                              ),
+                              child: Row(children: [
+                                Container(
+                                  width: 38, height: 38,
+                                  decoration: BoxDecoration(
+                                    color: color.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(_iconForRole(role), color: color, size: 20),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(account.label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: color)),
+                                    Text(_descForRole(role), style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                                  ],
+                                )),
+                                Icon(Icons.arrow_forward_ios, size: 12, color: color.withValues(alpha: 0.5)),
+                              ]),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                    const SizedBox(height: 24),
+                    // Divider
+                    Row(children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text('or sign in manually', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                      ),
+                      const Expanded(child: Divider()),
+                    ]),
+                    const SizedBox(height: 24),
 
                     // Error banner
                     if (authState.errorMessage != null) ...[
@@ -197,14 +300,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         const Expanded(child: Divider()),
                       ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Social login
-                    OutlinedButton.icon(
-                      onPressed: isLoading ? null : () {},
-                      icon: const Icon(Icons.g_mobiledata, size: 24),
-                      label: const Text('Continue with Google'),
                     ),
                     const SizedBox(height: 32),
 

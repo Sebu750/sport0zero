@@ -58,17 +58,36 @@ flutter pub get
 
 ## Running the App
 
-### Web (Browser)
+### Web (Browser) — Recommended
+
+**Run via localhost URL (any browser):**
 
 ```bash
-flutter run -d chrome
+# Launches a dev server accessible from Chrome, Firefox, Safari, Edge, etc.
+flutter run -d web-server
 ```
 
-Or for a specific browser:
-```bash
-flutter run -d web-server   # headless, accessible via localhost URL
-flutter run -d edge          # Microsoft Edge
+This starts a local dev server and prints a URL like:
+
 ```
+Running with sound null safety
+lib/main.dart is compiled to JavaScript
+Serving at http://localhost:59832
+```
+
+Open that `http://localhost:<port>` link in **any browser** on your machine.  
+Hot reload works — save any `.dart` file and press `r` in the terminal to refresh the page.
+
+**Launch a specific browser directly:**
+
+```bash
+flutter run -d chrome   # Google Chrome
+flutter run -d edge     # Microsoft Edge
+flutter run -d firefox  # Mozilla Firefox (if installed)
+```
+
+> **Tip:** If you're collaborating or testing across machines on the same network,  
+> replace `localhost` with your machine's local IP (e.g. `http://192.168.x.x:<port>`).
 
 ### Mobile (Android)
 
@@ -168,6 +187,16 @@ dart run build_runner build --delete-conflicting-outputs
 
 - Mock data is served from `assets/mock/` JSON files — no backend required to run
 - API base URL is configured in `lib/core/constants/app_constants.dart`
-- Auth guard in the router is currently disabled (commented out) — all screens are accessible without login
 - `flutter_secure_storage` stores auth tokens securely on device
+
+## Demo Login
+
+The app ships with 4 pre-configured demo roles — no sign-up required.
+
+1. Open the webapp → you land on the **role selection screen**
+2. Tap any role card: **Player**, **Manager**, **Organizer**, or **Admin**
+3. You're taken to a demo login screen showing the mock credentials
+4. Tap **Sign In** → you're inside the role-specific dashboard
+
+Each role has its own navigation items, dashboard widgets, and accessible screens.
 

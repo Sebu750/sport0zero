@@ -1,0 +1,133 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn()
+        && 'admin' in get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.roles;
+    }
+
+    function isTeamMember(teamId) {
+      return isSignedIn()
+        && request.auth.uid in get(/databases/$(database)/documents/teams/$(teamId)).data.playerIds;
+    }
+
+    function isTeamCaptain(teamId) {
+      return isSignedIn()
+        && get(/databases/$(database)/documents/teams/$(teamId)).data.managerId == request.auth.uid;
+    }
+
+    // ── profiles/{uid} ─────────────────────────────────────────────────────────
+    // Owner: full read/write. Authenticated users: read only (scout/lookup).
+    match /profiles/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(uid);
+      allow update: if isOwner(uid) || isAdmin();
+      allow delete: if isOwner(uid);
+
+      // Subcollections: achievements, stats, tournamentHistory
+      match /{subcollection}/{docId} {
+        allow read: if isSignedIn();
+        allow write: if isOwner(uid) || isAdmin();
+      }
+    }
+
+    // ── teams/{teamId} ─────────────────────────────────────────────────────────
+    // Members: read. Captain/manager: write. Anyone authenticated: create.
+    match /teams/{teamId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isTeamCaptain(teamId) || isAdmin();
+      allow delete: if isTeamCaptain(teamId) || isAdmin();
+    }
+
+    // ── team_memberships/{membershipId} ────────────────────────────────────────
+    // Player or captain can read/write their own memberships.
+    match /team_memberships/{membershipId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.playerId == request.auth.uid;
+      allow update: if isOwner(resource.data.playerId)
+        || isTeamCaptain(resource.data.teamId)
+        || isAdmin();
+      allow delete: if isOwner(resource.data.playerId)
+        || isTeamCaptain(resource.data.teamId)
+        || isAdmin();
+    }
+
+    // ── matches/{matchId} ──────────────────────────────────────────────────────
+    // Authenticated read; organizer/captain write.
+    match /matches/{matchId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn()
+        && (isTeamCaptain(resource.data.teamAId)
+          || isTeamCaptain(resource.data.teamBId)
+          || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ── match_participants/{participantId} ─────────────────────────────────────
+    // Player can read their own; write via Cloud Functions only.
+    match /match_participants/{participantId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.playerId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ── notifications/{uid}/items/{notifId} ────────────────────────────────────
+    // Owner only.
+    match /notifications/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /items/{notifId} {
+        allow read: if isOwner(uid);
+        allow update: if isOwner(uid);  // mark read
+        allow delete: if isOwner(uid);
+        allow create: if false;         // only Cloud Functions write
+      }
+    }
+
+    // ── activity/{uid}/items/{actId} ───────────────────────────────────────────
+    // Owner read only; writes via Cloud Functions.
+    match /activity/{uid} {
+      allow read: if isOwner(uid);
+      allow write: if false;
+
+      match /items/{actId} {
+        allow read: if isOwner(uid);
+        allow write: if false;
+      }
+    }
+
+    // ── player_stats/{uid} ─────────────────────────────────────────────────────
+    // Owner read; only Cloud Functions write.
+    match /player_stats/{uid} {
+      allow read: if isOwner(uid) || isSignedIn();
+      allow write: if false;
+    }
+
+    // ── tournaments/{tournamentId} ─────────────────────────────────────────────
+    match /tournaments/{tournamentId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() || isAdmin();
+      allow delete: if isAdmin();
+
+      match /{subcollection}/{docId} {
+        allow read: if isSignedIn();
+        allow write: if isSignedIn() || isAdmin();
+      }
+    }
+  }
+}
